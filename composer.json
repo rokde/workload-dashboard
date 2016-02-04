@@ -1,0 +1,21 @@
+{
+    "name": "rokde/workload-dashboard",
+    "description": "A dashboard for showing developers workload depending on ticket systems api.",
+    "require": {
+        "guzzlehttp/guzzle": "~6.1",
+        "illuminate/http": "~5.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "WorkloadDashboard\\": "src/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "rokde",
+            "email": "github@mail.robert-kummer.de"
+        }
+    ],
+    "minimum-stability": "stable"
+}

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Workload Dashboard</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css">
+	<link rel="stylesheet" href="css/styles.css" type="text/css">
+</head>
+<body id="app">
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="table-responsive">
+				<table class="table table-striped table-hover" id="datatable">
+					<colgroup>
+						<col width="1">
+						<col width="5%">
+						<col width="*" v-for="user in users">
+						<col width="1">
+					</colgroup>
+					<thead>
+					<tr>
+						<th colspan="3">
+							<div class="form-group">
+								<input type="text" name="daterange" class="form-control">
+							</div>
+						</th>
+						<th v-for="user in users" class="text-center">
+							<div v-if="user.avatar">
+								<img :src="user.avatar" class="img-rounded" width="40"/> {{ user.name }}
+							</div>
+							<div v-else>
+								<i class="fa fa-user fa-3x" style="vertical-align: middle"></i> {{ user.name }}
+							</div>
+						</th>
+						<th class="text-right">&sum;</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr v-for="project in projects"><!-- v-if="project | sum > 0" -->
+						<th class="text-center">
+							<div v-if="project.image">
+								<img :src="project.image" class="img-rounded" width="40"/>
+							</div>
+							<div v-else>
+								<i class="fa fa-briefcase fa-2x text-muted"></i>
+							</div>
+						</th>
+						<th>{{ project.name }}</th>
+						<td v-for="user in users" class="text-center">
+							{{ workload | filterForProjectUser project user | fixed }}
+						</td>
+						<td class="text-right bg-info">{{ project | sum | fixed }}</td>
+					</tr>
+					</tbody>
+					<tfoot>
+					<tr>
+						<th colspan="2" class="text-right">&sum;</th>
+						<td v-for="user in users" class="text-center bg-info">{{ user.hours | fixed }}</td>
+						<td class="text-right bg-info"><strong>{{ total.hours | fixed }}</strong></td>
+					</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<nav class="navbar navbar-default navbar-fixed-bottom">
+	<div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">Workload Dashboard</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li><a href="#" data-toggle="modal" data-target="#addProject"><i class="fa fa-plus"></i> Add Project</a></li>
+				<li><a href="#" data-toggle="modal" data-target="#addUser"><i class="fa fa-user-plus"></i> Add User</a></li>
+				<li><label style="padding: 15px;line-height: 20px;color:#777;text-shadow: 0 1px 0 rgba(255,255,255,.25);" title="display money value for the project hours"><input type="checkbox" v-model="showSalesValues" /> <i class="fa fa-money"></i></label></li>
+				<li><label style="padding: 15px;line-height: 20px;color:#777;text-shadow: 0 1px 0 rgba(255,255,255,.25);" title="auto-refresh project workload on focusing the window"><input type="checkbox" v-model="refresh.active" /> <i class="fa fa-refresh"></i></label></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li class="navbar-text">&sum; {{ total.hours | fixed }} h</li>
+				<li class="navbar-text" v-if="showSalesValues">&asymp; {{ total.sales | fixed }} &euro;</li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</div><!-- /.container-fluid -->
+</nav>
+
+<div class="modal fade" id="addProject" tabindex="-1" role="dialog" aria-labelledby="addProjectLabel">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<form id="form" v-on:submit.prevent="addProject">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="addProjectLabel">Add a Project</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label for="projectName">Name</label>
+								<input type="text" class="form-control" id="projectName" placeholder="Name" required v-model="newProject.name">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-2">
+							<div class="form-group" style="margin-bottom: 0">
+								<label>Source</label>
+							</div>
+							<div class="radio" style="margin-top: 0">
+								<label>
+									<input type="radio" name="source" id="sourceNone" value="" v-model="newProject.source">
+									not tracked
+								</label>
+								<label>
+									<input type="radio" name="source" id="sourceTrac" value="trac" v-model="newProject.source">
+									trac
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-10">
+							<div class="form-group">
+								<label for="projectUrl">URL</label>
+								<input type="url" class="form-control" id="projectUrl" placeholder="URL" v-model="newProject.url">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-2">
+							<div class="form-group" style="margin-bottom: 0">
+								<label>Authentication</label>
+							</div>
+							<div class="radio" style="margin-top: 0">
+								<label>
+									<input type="radio" name="auth" id="authTypeNone" value="" v-model="newProject.auth.type">
+									none
+								</label>
+								<label>
+									<input type="radio" name="auth" id="authTypeBasic" value="basic" v-model="newProject.auth.type">
+									basic
+								</label>
+							</div>
+						</div>
+						<div class="col-xs-10">
+							<div class="form-group">
+								<label for="projectAuthUser">Credentials</label>
+								<div class="row">
+									<div class="col-xs-6">
+										<div class="input-group">
+											<div class="input-group-addon"><i class="fa fa-user"></i></div>
+											<input type="text" class="form-control" id="projectAuthUser" placeholder="Username" v-model="newProject.auth.user">
+										</div>
+									</div>
+									<div class="col-xs-6">
+										<div class="input-group">
+											<div class="input-group-addon"><i class="fa fa-key"></i></div>
+											<input type="password" class="form-control" id="projectAuthPass" placeholder="Password" v-model="newProject.auth.pass">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-md-2">
+							<div class="form-group">
+								<label for="projectHourlyRate">Hourly Rate</label>
+								<div class="input-group">
+									<input type="text" class="form-control" id="projectHourlyRate" placeholder="Hours" v-model="newProject.hourly_rate" number>
+									<div class="input-group-addon">&euro;</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-3 col-md-2">
+							<div class="form-group">
+								<label for="projectHours">Hours</label>
+								<div class="input-group">
+									<input type="number" class="form-control" id="projectHours" placeholder="Hours" v-model="newProject.hours" number>
+									<div class="input-group-addon">h</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6 col-md-8">
+							<div class="form-group">
+								<label for="projectImage">Image</label>
+								<input type="url" class="form-control" id="projectImage" placeholder="Image" v-model="newProject.image">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+					<input type="submit" class="btn btn-primary" value="Add Project">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="addUserLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<form id="userform" v-on:submit.prevent="addUser">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="addUserLabel">Add a User</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="userName">Name</label>
+						<input type="text" class="form-control" id="userName" placeholder="Name" required v-model="newUser.name">
+					</div>
+
+					<div class="form-group">
+						<label for="userNickname">Nickname <small>will be used to match reported user assignments</small></label>
+						<input type="text" class="form-control" id="userNickname" placeholder="Nickname" required v-model="newUser.nickname">
+					</div>
+
+					<div class="form-group">
+						<label for="userAvatar">Avatar</label>
+						<input type="url" class="form-control" id="userAvatar" placeholder="Avatar URL" v-model="newUser.avatar">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+					<input type="submit" class="btn btn-primary" value="Save User">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script src="/js/libs/vue/vue.js"></script>
+<script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<script src="/js/libs/store/store.min.js"></script>
+<script src="/js/app.js" async defer></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<script>
+	$(document).ready(function () {
+
+		$('#addProject').on('shown.bs.modal', function () {
+			$('#projectName').focus()
+		});
+		$('#addUser').on('shown.bs.modal', function () {
+			$('#userName').focus()
+		});
+
+		$('input[name="daterange"]').daterangepicker({
+			locale: {
+				format: 'DD.MM.YYYY'
+			},
+			startDate: moment().startOf('month'), endDate: moment().endOf('month'),
+			ranges: {
+				'Today': [moment(), moment()],
+				'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+				'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+				'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+				'This Month': [moment().startOf('month'), moment().endOf('month')],
+				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+			}
+		});
+		$('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+			vm.start = picker.startDate.format('x');
+			vm.end = picker.endDate.format('x');
+
+			vm.fetchAllProjects();
+		});
+	});
+</script>
+
+</body>
+</html>

@@ -208,7 +208,7 @@ var vm = new Vue({
 						if (user.nickname === username) {
 							user.hours += hours;
 						}
-					}.bind(username, hours));
+					});
 
 					workingHours[username] = hours;
 

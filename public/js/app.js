@@ -1,13 +1,14 @@
 /**
  * count work days
- * @param start
- * @param end
+ * @param {moment} start
+ * @param {moment} end
  * @returns {number}
  */
 function workday_count(start, end) {
-	if (start.isSame(end)) {
+	if (end.diff(start, 'days') === 0 || start.isSame(end)) {
 		return (start.day() == 0 || start.day() == 6) ? 0 : 1;
 	}
+
 	var first = start.clone().endOf('week'); // end of first week
 	var last = end.clone().startOf('week'); // start of last week
 	var days = last.diff(first, 'days') * 5 / 7; // this will always multiply of 7
@@ -318,6 +319,8 @@ var vm = new Vue({
 			if (end.diff(moment()) > 0) {
 				end = moment();
 			}
+
+			console.log(workday_count(this.start, end));
 
 			return this.total.hours / (workday_count(this.start, end) * 8);
 		},

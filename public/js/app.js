@@ -1,42 +1,9 @@
 /**
- * returns business days [past, upcoming]
- *
- * @param {Date} from
- * @returns {*[]}
+ * count work days
+ * @param start
+ * @param end
+ * @returns {number}
  */
-function businessDays(from) {
-	"use strict";
-
-	var date = from || new Date();
-
-	// Copy date
-	var t = new Date(date);
-	// Remember the month number
-	var m = date.getMonth();
-	var d = date.getDate();
-	var daysPast = 0, daysToGo = 0;
-	var day;
-
-	// Count past days
-	while (t.getMonth() == m) {
-		day = t.getDay();
-		daysPast += (day == 0 || day == 6) ? 0 : 1;
-		t.setDate(--d);
-	}
-
-	// Reset and count days to come
-	t = new Date(date);
-	t.setDate(t.getDate() + 1);
-	d = t.getDate();
-
-	while (t.getMonth() == m) {
-		day = t.getDay();
-		daysToGo += (day == 0 || day == 6) ? 0 : 1;
-		t.setDate(++d);
-	}
-	return [daysPast, daysToGo];
-}
-
 function workday_count(start, end) {
 	if (start.isSame(end)) {
 		return (start.day() == 0 || start.day() == 6) ? 0 : 1;
@@ -339,12 +306,7 @@ var vm = new Vue({
 	},
 
 	computed: {
-		businessDays: function () {
-			return businessDays();
-		},
-
 		forecast: function () {
-
 			var start = moment();
 			var end = moment().endOf('month');
 

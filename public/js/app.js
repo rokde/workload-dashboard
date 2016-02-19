@@ -55,7 +55,7 @@ Vue.filter('fixed', function (value) {
 	"use strict";
 
 	return value != undefined
-		? new Intl.NumberFormat("de-DE", {minimumFractionDigits: 2}).format(value)
+		? new Intl.NumberFormat("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(value)
 		: null;
 });
 

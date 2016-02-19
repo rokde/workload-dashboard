@@ -92,8 +92,10 @@
 				<li><label style="padding: 15px;line-height: 20px;color:#777;text-shadow: 0 1px 0 rgba(255,255,255,.25);" title="auto-refresh project workload on focusing the window"><input type="checkbox" v-model="refresh.active" /> <i class="fa fa-refresh"></i></label></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li class="navbar-text">&sum; {{ total.hours | fixed }} h</li>
 				<li class="navbar-text" v-if="showSalesValues">&asymp; {{ total.sales | fixed }} &euro;</li>
+				<li class="navbar-text" v-if="showSalesValues">&asymp; {{ calculatedSalesRate | fixed }} &euro;/h</li>
+				<li class="navbar-text">&sum; {{ total.hours | fixed }} h <small>{{ productivity | percentage | fixed }}%</small></li>
+				<li class="navbar-text">&asymp; +{{ forecast | fixed }} h until EOM</li>
 			</ul>
 		</div><!-- /.navbar-collapse -->
 	</div><!-- /.container-fluid -->
@@ -248,7 +250,7 @@
 
 <script src="/js/libs/vue/vue.js"></script>
 <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
-<script src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="/js/libs/moment/moment.min.js"></script>
 <script src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script src="/js/libs/store/store.min.js"></script>
 <script src="/js/app.js" async defer></script>
@@ -279,8 +281,8 @@
 			}
 		});
 		$('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
-			vm.start = picker.startDate.format('x');
-			vm.end = picker.endDate.format('x');
+			vm.start = picker.startDate;
+			vm.end = picker.endDate;
 
 			vm.fetchAllProjects();
 		});

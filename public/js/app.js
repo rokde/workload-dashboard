@@ -1,11 +1,13 @@
 /**
  * returns business days [past, upcoming]
+ *
+ * @param {Date} from
  * @returns {*[]}
  */
-function businessDays() {
+function businessDays(from) {
 	"use strict";
 
-	var date = new Date();
+	var date = from || new Date();
 
 	// Copy date
 	var t = new Date(date);
@@ -35,6 +37,20 @@ function businessDays() {
 	return [daysPast, daysToGo];
 }
 
+function workday_count(start, end) {
+	if (start.isSame(end)) {
+		return (start.day() == 0 || start.day() == 6) ? 0 : 1;
+	}
+	var first = start.clone().endOf('week'); // end of first week
+	var last = end.clone().startOf('week'); // start of last week
+	var days = last.diff(first, 'days') * 5 / 7; // this will always multiply of 7
+	var wfirst = first.day() - start.day(); // check first week
+	if (start.day() == 0) --wfirst; // -1 if start with sunday
+	var wlast = end.day() - last.day(); // check last week
+	if (end.day() == 6) --wlast; // -1 if end with saturday
+	return wfirst + days + wlast; // get the total
+}
+
 /**
  * encode base64 encoded string
  * @param str
@@ -51,12 +67,20 @@ function b64EncodeUnicode(str) {
 var projectStore = store.get('projects', []);
 var userStore = store.get('users', []);
 
+Vue.config.debug = true;
+
 Vue.filter('fixed', function (value) {
 	"use strict";
 
 	return value != undefined
 		? new Intl.NumberFormat("de-DE", {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(value)
 		: null;
+});
+
+Vue.filter('percentage', function (value) {
+	"use strict";
+
+	return value * 100;
 });
 
 Vue.filter('sum', function (value) {
@@ -187,10 +211,10 @@ var vm = new Vue({
 				+ '&url=' + encodeURIComponent(project.url);
 
 			if (this.start !== null) {
-				proxyUrl += '&start=' + this.start;
+				proxyUrl += '&start=' + this.start.format('x');
 			}
 			if (this.end !== null) {
-				proxyUrl += '&end=' + this.end;
+				proxyUrl += '&end=' + this.end.format('x');
 			}
 
 			this.fetching.push(project.name);
@@ -317,6 +341,29 @@ var vm = new Vue({
 	computed: {
 		businessDays: function () {
 			return businessDays();
+		},
+
+		forecast: function () {
+
+			var start = moment();
+			var end = moment().endOf('month');
+
+			return this.productivity * 8 * workday_count(start, end);
+		},
+
+		productivity: function () {
+			var end = this.end.clone();
+			if (end.diff(moment()) > 0) {
+				end = moment();
+			}
+
+			return this.total.hours / (workday_count(this.start, end) * 8);
+		},
+
+		calculatedSalesRate: function () {
+			"use strict";
+
+			return this.total.sales / this.total.hours;
 		}
 	}
 });

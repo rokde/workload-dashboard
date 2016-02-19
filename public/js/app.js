@@ -343,8 +343,6 @@ var vm = new Vue({
 				end = moment();
 			}
 
-			console.log(workday_count(this.start, end));
-
 			return this.total.hours / (workday_count(this.start, end) * this.hoursPerDay) / this.users.length;
 		},
 

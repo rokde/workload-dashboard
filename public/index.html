@@ -92,10 +92,10 @@
 				<li><label style="padding: 15px;line-height: 20px;color:#777;text-shadow: 0 1px 0 rgba(255,255,255,.25);" title="auto-refresh project workload on focusing the window"><input type="checkbox" v-model="refresh.active" /> <i class="fa fa-refresh"></i></label></li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<li class="navbar-text" v-if="showSalesValues">&asymp; {{ total.sales | fixed }} &euro;</li>
-				<li class="navbar-text" v-if="showSalesValues">&asymp; {{ calculatedSalesRate | fixed }} &euro;/h</li>
-				<li class="navbar-text">&sum; {{ total.hours | fixed }} h <small>&equals; {{ productivity | percentage | fixed }}%</small></li>
-				<li class="navbar-text">&asymp; +{{ forecast | fixed }} h until EOM</li>
+				<li class="navbar-text" v-if="showSalesValues" title="Total sales net value for the current date range">&asymp; {{ total.sales | fixed }} &euro;</li>
+				<li class="navbar-text" v-if="showSalesValues" title="Calculated hourly sales rate over all projects with their belonging sales rate values">&asymp; {{ calculatedSalesRate | fixed }} &euro;/h</li>
+				<li class="navbar-text" title="Total hours logged for given date range">&sum; {{ total.hours | fixed }} h <small title="Productivity depending on the hours possible in relation to the logged hours">&equals; {{ productivity | percentage | fixed }}%</small></li>
+				<li class="navbar-text" title="Possible hours until end of current month depending on the same productivity given by the logged hours for given date range">&asymp; +{{ forecast | fixed }} h until EOM</li>
 			</ul>
 		</div><!-- /.navbar-collapse -->
 	</div><!-- /.container-fluid -->

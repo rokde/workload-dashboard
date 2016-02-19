@@ -8,8 +8,11 @@
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css">
 	<link rel="stylesheet" href="css/styles.css" type="text/css">
+	<link rel="stylesheet" href="components/vue-loading-bar/vue-loading-bar.css" type="text/css">
 </head>
 <body id="app">
+
+<loading-bar :progress.sync="progress" direction="right"></loading-bar>
 
 <div class="container-fluid">
 	<div class="row">
@@ -253,6 +256,7 @@
 <script src="/js/libs/moment/moment.min.js"></script>
 <script src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script src="/js/libs/store/store.min.js"></script>
+<script src="components/vue-loading-bar/vue-loading-bar.min.js"></script>
 <script src="/js/app.js" async defer></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 

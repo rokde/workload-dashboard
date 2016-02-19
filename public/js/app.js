@@ -123,6 +123,7 @@ var vm = new Vue({
 			},
 
 			fetching: [],
+
 			showSalesValues: false,
 			refresh: {
 				active: true,
@@ -355,6 +356,21 @@ var vm = new Vue({
 			"use strict";
 
 			return this.total.sales / this.total.hours;
+		},
+
+		/**
+		 * loading progress number for current project count
+		 *
+		 * @returns {number}
+		 */
+		progress: function () {
+			"use strict";
+
+			if (this.fetching.length < 1) {
+				return 0;
+			}
+
+			return 100 - ((this.fetching.length - 1) / this.projects.length * 100);
 		}
 	}
 });

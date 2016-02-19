@@ -94,7 +94,7 @@
 			<ul class="nav navbar-nav navbar-right">
 				<li class="navbar-text" v-if="showSalesValues">&asymp; {{ total.sales | fixed }} &euro;</li>
 				<li class="navbar-text" v-if="showSalesValues">&asymp; {{ calculatedSalesRate | fixed }} &euro;/h</li>
-				<li class="navbar-text">&sum; {{ total.hours | fixed }} h <small>{{ productivity | percentage | fixed }}%</small></li>
+				<li class="navbar-text">&sum; {{ total.hours | fixed }} h <small>&equals; {{ productivity | percentage | fixed }}%</small></li>
 				<li class="navbar-text">&asymp; +{{ forecast | fixed }} h until EOM</li>
 			</ul>
 		</div><!-- /.navbar-collapse -->

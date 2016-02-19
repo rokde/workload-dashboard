@@ -35,7 +35,7 @@ function b64EncodeUnicode(str) {
 var projectStore = store.get('projects', []);
 var userStore = store.get('users', []);
 
-Vue.config.debug = true;
+// Vue.config.debug = true;
 
 Vue.filter('fixed', function (value) {
 	"use strict";
@@ -106,6 +106,7 @@ var vm = new Vue({
 			workload: {},
 			start: moment().startOf('month'),
 			end: moment().endOf('month'),
+			hoursPerDay: 8,
 
 			users: userStore,
 			newUser: {
@@ -254,6 +255,9 @@ var vm = new Vue({
 			this.fetchProject(p);
 		},
 
+		/**
+		 * add a user
+		 */
 		addUser: function () {
 			"use strict";
 
@@ -285,6 +289,9 @@ var vm = new Vue({
 			store.set('users', this.users);
 		},
 
+		/**
+		 * auto refresh data
+		 */
 		autoRefresh: function () {
 			"use strict";
 
@@ -293,6 +300,11 @@ var vm = new Vue({
 			}
 		},
 
+		/**
+		 * can we refresh
+		 *
+		 * @returns {boolean}
+		 */
 		canRefresh: function () {
 			"use strict";
 
@@ -307,13 +319,24 @@ var vm = new Vue({
 	},
 
 	computed: {
+		/**
+		 * forecast for possible hours until the end of current month,
+		 * based on the productivity of the selected date range
+		 *
+		 * @returns {number}
+		 */
 		forecast: function () {
-			var start = moment();
+			var start = moment().add(1, 'days');
 			var end = moment().endOf('month');
 
-			return this.productivity * 8 * this.users.length * workday_count(start, end);
+			return this.productivity * this.hoursPerDay * workday_count(start, end) * this.users.length;
 		},
 
+		/**
+		 * productivity per user
+		 *
+		 * @returns {number}
+		 */
 		productivity: function () {
 			var end = this.end.clone();
 			if (end.diff(moment()) > 0) {
@@ -322,9 +345,14 @@ var vm = new Vue({
 
 			console.log(workday_count(this.start, end));
 
-			return this.total.hours / (workday_count(this.start, end) * 8);
+			return this.total.hours / (workday_count(this.start, end) * this.hoursPerDay) / this.users.length;
 		},
 
+		/**
+		 * calculated sales rate value for the current project sales sum
+		 *
+		 * @returns {number}
+		 */
 		calculatedSalesRate: function () {
 			"use strict";
 

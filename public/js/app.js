@@ -348,7 +348,7 @@ var vm = new Vue({
 			var start = moment();
 			var end = moment().endOf('month');
 
-			return this.productivity * 8 * workday_count(start, end);
+			return this.productivity * 8 * this.users.length * workday_count(start, end);
 		},
 
 		productivity: function () {

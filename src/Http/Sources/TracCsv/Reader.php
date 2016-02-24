@@ -49,7 +49,7 @@ class Reader
 
         foreach ($this->csv as $row) {
             if (array_has($row, 'ticket') && array_get($row, 'ticket') === '0') {
-                $result[ array_get($row, '__group__') ] = array_get($row, 'Work_added', 0);
+                $result[ array_get($row, '__group__') ] = array_get($row, 'Work_added', 0) + 0.0;
             }
         }
 
